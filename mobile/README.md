@@ -8,7 +8,7 @@ The app keeps the bearer token in Expo SecureStore (Android Keystore-backed encr
 
 - Node.js 22.13 or newer (required by this Expo SDK).
 - The Django backend installed and migrated using the repository instructions.
-- Expo Go or an Android/iOS simulator. For iOS native builds, a Mac with Xcode is required.
+- A matching Expo SDK 58 development build and an Android/iOS simulator. For local iOS native builds, a Mac with Xcode is required. Expo Go support can lag a newly released SDK; SDK 58's development build is the documented path.
 
 ## Configure and run
 
@@ -20,7 +20,7 @@ npm install
 npm run start
 ~~~
 
-The Expo SDK 58 toolchain requires Node.js 22.13 or newer.
+The Expo SDK 58 toolchain requires Node.js 22.13 or newer. After dependencies are installed, `npm run android` builds and launches the app on an Android emulator; `npm run ios` does the same on a Mac with Xcode. `npm run start` starts Metro for an installed development build.
 
 Use `npm run android` or `npm run ios` to open the respective simulator when it is installed. Android emulator uses `http://10.0.2.2:8000` to reach the host machine. iOS simulator can use `http://127.0.0.1:8000`. For a phone on the same trusted development network, bind Django to the LAN and allow the host address:
 
