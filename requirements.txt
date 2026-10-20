@@ -1,0 +1,4 @@
+Django==5.2.18
+django-otp==1.7.5
+cryptography>=44,<47
+python-dotenv>=1.1,<2

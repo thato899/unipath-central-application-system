@@ -1,47 +1,37 @@
 # UniPath — local proof of concept
 
-UniPath is a first-pass South African university application demo. A student enters one profile and seven matric subject marks (including Life Orientation), browses undergraduate programmes grouped across all nine UP faculties, compares illustrative thresholds, reviews applications, and responds to an offer.
-
-The prototype includes controls for reading the current page aloud, changing text size, and enabling high contrast. It uses semantic headings, labeled fields, keyboard focus styles, and text labels for application states.
-
-## Documentation
-
-- [Product scope and decisions](devpost/scope.md)
-- [Product requirements](devpost/prd.md)
-- [Technical specification](devpost/spec.md)
-- [Architecture and limitations](docs/architecture.md)
-- [Local API contract](docs/api.md)
-- [UP Yearbook catalogue notes](docs/catalogue.md)
+UniPath demonstrates a central South African university application journey: create a student profile with seven matric subjects including Life Orientation, explore programmes across nine University of Pretoria faculties, compare illustrative requirements, apply to selected institutions, respond to simulated offers, and request residence after accepting an offer. It also includes accessibility controls and a local funding-destination summary.
 
 ## Run locally
 
-Requires Python 3.10 or newer. No packages need to be installed.
+Requires Python 3.10 or newer.
 
 ~~~powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python scripts/setup_local.py
+python manage.py migrate
 python app.py
 ~~~
 
-Open http://127.0.0.1:8000 in a browser. Stop the server with Ctrl+C.
+Open http://127.0.0.1:8000. Create an account, then enroll an authenticator app by scanning the setup link or entering its key. Future sign-ins require the account password and a current six-digit authenticator code. Keep the generated `.env` and its encryption key backed up securely; `.env` is ignored by Git.
 
-## Demo behavior and limits
+On macOS/Linux, activate the virtual environment with `source .venv/bin/activate`.
 
-- Programme names follow the undergraduate programme lists in the [UP Yearbook 2026](https://www.up.ac.za/yearbooks/home). The demo is not affiliated with UP; confirm current programme details in the Yearbook.
-- Admission thresholds and outcomes are illustrative demo data, not official UP entry requirements or admission decisions. UP calculates APS using its own rules; Life Orientation may be required as a matric subject but is excluded from APS calculation for programmes such as BNurs. Always confirm course-specific requirements with the institution.
-- The profile form requires seven subjects, including Life Orientation. APS is entered separately in this prototype; it is not calculated from marks.
-- The profile is saved in the current browser's local storage.
-- The marks statement input only selects a file name. This demo does not upload, read, or extract information from the file; marks are entered manually.
-- Each submitted destination receives a simulated offer so the student can compare responses and accept or reject them. Only one offer can be accepted at a time in the single-student demo.
-- Python serves a local JSON API for the course catalogue, eligibility matches, applications, and offer decisions. It does not connect to real university systems or NSFAS.
-- Residence requests are recorded in the local demo only after an offer is accepted. The funding summary derives its university from that accepted offer and includes the residence preference; it does not contact NSFAS. Real NSFAS routing, institution-side course management, university APIs, authentication, and production data storage are future work.
+## Privacy and security
 
-## Local demo API
+The prototype requires two-factor sign-in, uses CSRF-protected state changes, encrypts profile/marks and accommodation notes in the database, records the privacy-notice version, requests explicit destination consent, and offers personal-data export and password-plus-2FA account deletion. Read [privacy and security design](docs/privacy-security.md) for the limits and production requirements. Use fictional information only; this prototype does not certify POPIA compliance and is not approved for real student records.
 
-- GET /api/health
-- GET /api/universities
-- GET /api/courses
-- GET /api/courses/{course_id}/matches?aps=36&mathematics=74&english=68&upgrading=false
-- GET /api/applications
-- POST /api/applications
-- POST /api/applications/{application_id}/decision
+## Demo boundaries
 
-The API is a local prototype contract for future institution integrations. No real institution is contacted.
+- Programme names and faculties are based on the [UP Yearbook](https://www.up.ac.za/yearbooks/home). UniPath is not affiliated with UP.
+- Admission thresholds and eligibility results are illustrative, not official entry requirements or decisions. APS is entered separately and is not calculated from marks.
+- The profile requires seven unique subject marks including Life Orientation. The statement-of-results picker only displays a selected filename; it does not upload or parse the file.
+- Each chosen institution receives a simulated offer in the demo. No real university system, residence office, or NSFAS is contacted. Funding output is a local summary and is not a funding decision.
+- The local Django server binds to `127.0.0.1`, uses SQLite, and is for demonstration only.
+
+## Documentation
+
+- [Product scope](devpost/scope.md) · [Requirements](devpost/prd.md) · [Technical specification](devpost/spec.md)
+- [Architecture](docs/architecture.md) · [API contract](docs/api.md) · [Privacy and security](docs/privacy-security.md) · [Catalogue notes](docs/catalogue.md)

@@ -3,87 +3,37 @@ doc: spec
 status: draft
 ---
 
-# UniPath (working title) — Technical Specification
+# UniPath — Technical Specification
 
-## How This Works, In Plain Language
+## Overview
 
-Python serves the web pages and a small JSON API from one local process. The browser asks the API for courses and requirement matches, then sends chosen applications and offer decisions back to Python. The catalogue is based on undergraduate programme lists in the 2026 University of Pretoria Yearbook across all nine faculties, plus a demo institution. Admission thresholds and outcomes in the Python file are illustrative only, not official university requirements. The student's profile lives in browser storage; application records exist only while the demo server is running.
+UniPath is a local South African university-application proof of concept. Python/Django provides the accessible student interface and JSON API. The sample catalogue follows programme and faculty groupings from the 2026 University of Pretoria Yearbook; eligibility and offer outcomes are illustrative.
 
-This is an agent-selected first implementation based on the learner's requirement to use Python and start building. The learner can revise the stack or behavior during review.
+## Run locally
 
-## Look and Feel
-
-Implements `prd.md > Look and Feel`. Use the Figma prototype as the visual reference. Keep page backgrounds pale, text dark, buttons obvious, and accessibility controls labeled. Support readable text scaling, high-contrast mode, visible keyboard focus, and status text that does not depend on color.
-
-## Where It Runs and How Someone Tries It
-
-- Local desktop or laptop browser.
-- Python 3.10 or later; no external packages are required.
-- From the project folder run `python app.py`.
-- Open `http://127.0.0.1:8000` in a browser. Stop with Ctrl+C.
-- No deployment is included in the proof of concept.
+- Python 3.10 or later; install dependencies from `requirements.txt`.
+- Generate local secrets with `python scripts/setup_local.py`, then initialize with `python manage.py migrate`.
+- Start using `python app.py`; browse to `http://127.0.0.1:8000`.
+- Registration requires privacy-notice acknowledgement and authenticator enrollment. Every sign-in uses password and a current six-digit TOTP code.
 
 ## Components
 
-### Local Python web server
+- `app.py`: course and university sample data plus Django local-server entry point.
+- `unipath_project/`: Django settings, URL routing, WSGI, and ASGI configuration.
+- `applications/`: authentication, profile/application models, encrypted fields, validated API, and privacy actions.
+- `static/`: accessible student interface, CSS/JavaScript, and auth templates.
+- `docs/privacy-security.md`: POPIA-informed safeguards and production boundaries.
 
-Implements `prd.md > Student profile and marks`, `prd.md > Course discovery and university matching`, and `prd.md > Application review, status, and offer response`. `app.py` serves static files and JSON endpoints using Python's standard library. It binds to localhost only.
+## Data flow and privacy controls
 
-### Course and university catalogue
+Student profile and marks are encrypted using the per-installation Fernet key. Residence notes are encrypted as well. Server-side APIs require authenticated TOTP-verified sessions and CSRF protection for state changes. Destination application submissions require explicit consent. Students can review/correct profiles, export JSON, and delete their account after confirming password and a fresh TOTP code. The local database also stores authentication identifiers, application routing/status, and TOTP device records.
 
-Implements `prd.md > Course discovery and university matching`. UP Yearbook programme entries and faculty groupings, example careers, one demo institution, and illustrative thresholds live in `app.py`. Verify current programmes with UP; use official university data agreements before using real admission requirements. The catalogue can later be replaced by an integration adapter after data contracts are agreed.
+This setup is a prototype, not a claim of POPIA compliance. It runs on local SQLite, has no production retention schedule, monitoring, breach operations, recovery flow, or legal review. Use fictional information only; before real applicant data, especially children's information, the responsible institution must determine the lawful basis and safeguards, provide notices, establish an Information Officer and data-subject processes, and complete security/privacy assessment.
 
-### Browser interface
+## Functional API
 
-Implements `prd.md > Screens and Layout` and `prd.md > Accessibility`. `static/index.html` contains semantic page sections and form labels; `static/style.css` provides responsive layout and accessibility presentation; `static/app.js` handles navigation, API calls, profile storage, eligibility display, submission, status, and offer response.
+The authenticated API includes course/university catalogue and match retrieval, profile read/update, application creation and offer decisions, residence requests following an accepted offer, funding-destination summary, privacy export, and account deletion. See `docs/api.md` for methods, paths, and boundaries. No external institution, residence office, or NSFAS is contacted.
 
-### Local JSON API
+## Accessibility
 
-Implements `prd.md > Course discovery and university matching` and `prd.md > Application review, status, and offer response`.
-
-- `GET /api/health`
-- `GET /api/universities`
-- `GET /api/courses`
-- `GET /api/courses/{course_id}/matches` with APS, Mathematics, English, and upgrading query values
-- `GET /api/applications`
-- `POST /api/applications`
-- `POST /api/applications/{application_id}/decision`
-- `GET /api/residence`
-- `POST /api/applications/{application_id}/residence` (accepted offer required)
-- `GET /api/funding-plan` (derived destination summary; never sends data to NSFAS)
-
-These endpoints define a local prototype contract, not a live university connection. They do not include real integration authentication, partner data, or NSFAS connectivity.
-
-## Data and State
-
-- Static course and university data: Python module constants in `app.py`.
-- Student profile and marks: browser local storage.
-- The form requires seven matric marks, including Life Orientation, and lets the student name four additional subjects. APS is separate and not derived from these marks.
-- Application records: in-memory Python list, reset on server restart.
-- Marks file input: filename only; file bytes are neither uploaded nor read.
-- Sample responses: simulated by the application submission endpoint.
-
-## File Structure
-
-~~~text
-build-with-ai-basics/
-├── app.py                  # Local Python server, demo data, and API routes
-├── README.md               # Setup and demo limits
-├── static/
-│   ├── index.html          # Accessible application screens
-│   ├── style.css           # Responsive and accessibility styles
-│   └── app.js              # Browser state and interactions
-└── devpost/
-    ├── learner-profile.md  # Personal learning context; ignored by Git
-    ├── scope.md            # Approved project scope
-    ├── prd.md              # Product behavior (draft)
-    └── spec.md             # Technical plan (draft)
-~~~
-
-## Decisions and Open Issues
-
-- Python standard library was selected for a dependency-free local proof of concept; this keeps setup simple but is not a production server architecture.
-- No database or external service is used. Demo records reset when the server restarts.
-- Real institution APIs, NSFAS, accounts, and mark-statement extraction are deferred.
-- The Figma visual reference and the Clinic Connect interpretation are provisional.
-- Verify accessibility behavior with assistive technology during review; the prototype has not been formally audited against an accessibility standard.
+The interface includes semantic structure, keyboard focus, labeled forms, text scaling, contrast adjustment, and read-aloud support. Authentication uses a phone authenticator; this prototype does not yet include an equivalent recovery path for people who cannot use one, so real deployment requires accessible, identity-verified alternatives.

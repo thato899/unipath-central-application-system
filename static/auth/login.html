@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in securely · UniPath</title><link rel="stylesheet" href="/assets/style.css">
+</head>
+<body><main class="auth-shell" id="main" tabindex="-1">
+  <a class="brand" href="/">UniPath</a><p class="eyebrow">SECURE SIGN IN</p>
+  <h1>Sign in to your application account</h1>
+  <p>Enter your password and the current code from your authenticator app.</p>
+  {% for message in messages %}<p class="notice">{{ message }}</p>{% endfor %}
+  <form method="post" class="panel auth-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div role="alert" class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}<label class="form-grid-label">{{ field.label }} {{ field }}{% if field.errors %}<span class="form-errors">{{ field.errors }}</span>{% endif %}</label>{% endfor %}
+    <button class="button primary" type="submit">Sign in with two factors</button>
+  </form>
+  <p><a href="/auth/register/">Create an account</a></p>
+  <p class="demo-note">Protect your authenticator app and never share its codes. Use sample information in this prototype.</p>
+</main></body></html>

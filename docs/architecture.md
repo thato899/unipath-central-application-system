@@ -2,47 +2,38 @@
 
 ## Overview
 
-UniPath is a local proof of concept with no external package dependencies. A Python standard-library HTTP server serves the static browser application and JSON API from the same process. The browser calls that API with `fetch`.
+UniPath is a local Django proof of concept. Django serves the accessible browser interface and JSON API; authenticated records are stored in SQLite. Students must verify a password and a TOTP authenticator code before entering the application.
 
 ```text
-Browser (static/index.html, style.css, app.js)
-  ├─ localStorage: student profile and marks (demo only)
-  └─ HTTP JSON ──> app.py (127.0.0.1:8000)
-                    ├─ in-memory UP and demo university catalogue
-                    └─ in-memory sample applications
+Browser (static/index.html, app.js, style.css)
+  └─ CSRF-protected JSON ──> Django (127.0.0.1:8000)
+       ├─ django-otp password + TOTP authentication
+       ├─ SQLite account/application records
+       ├─ Fernet-encrypted profile/marks and residence notes
+       └─ in-memory catalogue from app.py (illustrative UP and demo data)
 ```
-
-## Main files
-
-- `app.py`: programme and university sample data, eligibility matching, JSON endpoints, and static-file server.
-- `static/index.html`: semantic page structure, profile form, course explorer, application tracker, and accessibility controls.
-- `static/app.js`: browser navigation, profile storage, catalogue rendering, match requests, application submissions, and offer decisions.
-- `static/style.css`: responsive presentation, focus styles, text scaling, and high-contrast theme.
-- `devpost/scope.md`: approved product boundary and source notes.
-- `devpost/prd.md`: product requirements and flow behavior.
-- `devpost/spec.md`: technical implementation specification.
-- `docs/api.md`: local API contract.
-- `docs/catalogue.md`: catalogue coverage, sources, and limitations.
 
 ## Data flow
 
-1. The student enters profile details, APS, and seven NSC subject marks. Life Orientation is mandatory. The prototype stores these values in the current browser's local storage.
-2. The browser loads the programme list from `GET /api/courses` and university list from `GET /api/universities`.
-3. For a selected programme, the browser requests illustrative matches using APS, Mathematics, English, and upgrading status.
-4. On submission, the browser posts the selected university IDs and marks. The server checks the programme, destinations, seven-subject record, and demo eligibility path.
-5. The server stores sample applications in process memory and creates a simulated offer for each selected destination.
-6. The student can post an accept/reject decision for a simulated offer.
+1. Registration records the accepted privacy notice version and requires TOTP enrollment.
+2. A verified session loads courses and the signed-in student's saved profile from the API.
+3. Profile updates are validated and encrypted before storage. Exactly seven unique subjects are required, including Life Orientation.
+4. Application submission requires explicit destination-sharing consent. Server-side validation checks selected course/university eligibility, duplicate submissions, and the upgrading path.
+5. Each application receives a simulated offer. A student can accept one offer, then record a residence preference; the funding summary derives its destination from that offer.
+6. Profile users can export their data or delete their account after password and fresh authenticator-code confirmation.
+
+## Main files
+
+- `app.py`: illustrative catalogue plus local Django development-server entry point.
+- `unipath_project/settings.py`: Django, session, CSRF, OTP, cookie, and local database settings.
+- `applications/`: account flows, models, encrypted fields, API validation, privacy export/deletion, and URL routing.
+- `static/`: accessible application UI, JavaScript client, CSS, and authentication templates.
+- `docs/privacy-security.md`: POPIA-informed controls, limits, and real deployment requirements.
 
 ## Current constraints
 
-- `127.0.0.1` binding means this is intended for local demonstration only.
-- Profile data is in browser local storage, not protected account storage.
-- Application records are in memory and disappear when the server stops.
-- The marks statement picker only shows a selected filename. It does not upload or parse the document.
-- Admission thresholds, sample university matches, and outcomes are illustrative. They are not official University of Pretoria requirements or decisions.
-- No authentication, authorization, audit logging, encryption-at-rest, production database, NSFAS connection, or real university integration is implemented.
-- Do not enter real sensitive student information into this proof of concept.
-
-## Future integration boundary
-
-The local `/api` endpoints are a prototype contract, not a production integration. A production system needs university-authorized data feeds and agreements, identity and access controls, consent and privacy design, secure document handling, persistent records, audit trails, and institution-specific rules. The current residence request and NSFAS destination summary only exercise the local student flow; neither sends data to an external organization.
+- Localhost only, SQLite only, fictional data only. Do not enter real student data.
+- Profile and residence text fields are encrypted with a local Fernet key, while authentication identifiers and application routing fields remain queryable in SQLite. TOTP device secrets are stored in the local database and require protected storage.
+- No configured retention/deletion schedule, operational audit and alerting, breach response function, Information Officer, real institution integration, NSFAS connection, or verified legal compliance assessment exists.
+- Enrollment recovery is not implemented. Production must design an accessible, identity-verified recovery route.
+- Catalogue and admission results remain illustrative; application and offer states are simulated.

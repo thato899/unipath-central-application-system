@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Set up two-factor authentication · UniPath</title><link rel="stylesheet" href="/assets/style.css">
+</head>
+<body><main class="auth-shell" id="main" tabindex="-1">
+  <a class="brand" href="/">UniPath</a><p class="eyebrow">REQUIRED ACCOUNT SECURITY</p>
+  <h1>Set up an authenticator app</h1>
+  <ol><li>Open an authenticator app on your phone.</li><li>Add an account manually and enter the key below. Set it to time-based one-time passwords (TOTP), six digits, 30 seconds.</li><li>Enter the current six-digit code to confirm setup.</li></ol>
+  <label class="form-grid-label" for="totp-secret">Authenticator setup key</label>
+  <p><code id="totp-secret" class="secret-value">{{ secret }}</code></p>
+  <details><summary>Show setup link for compatible authenticator apps</summary><p><code class="secret-value">{{ config_url }}</code></p></details>
+  {% for message in messages %}<p class="notice" role="status">{{ message }}</p>{% endfor %}
+  <form method="post" class="panel auth-form">
+    {% csrf_token %}
+    <label class="form-grid-label" for="id_token">Current authenticator code<input id="id_token" name="token" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" maxlength="6" required></label>
+    <button class="button primary" type="submit">Confirm authenticator and continue</button>
+  </form>
+  <p class="demo-note">Treat this setup key like a password. This prototype does not provide self-service recovery if you lose the authenticator device.</p>
+</main></body></html>

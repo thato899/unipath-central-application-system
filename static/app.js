@@ -3,7 +3,7 @@ const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
 const state = {
   courses: [],
-  profile: JSON.parse(localStorage.getItem("unipath-profile") || "null"),
+  profile: null,
   selectedCourse: null,
   matches: [],
   selectedUniversities: new Set(),
@@ -14,6 +14,15 @@ const state = {
 };
 
 function announce(message) { $("#live-status").textContent = message; }
+
+function csrfToken() { return $("meta[name='csrf-token']")?.content || $("input[name='csrfmiddlewaretoken']")?.value || ""; }
+
+async function postJson(url, payload) {
+  return fetch(url, {
+    method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken() },
+    body: JSON.stringify(payload), credentials: "same-origin",
+  });
+}
 
 function navigate(pageName) {
   $$(".page").forEach((page) => page.classList.add("hidden"));
@@ -144,7 +153,7 @@ function renderCourses() {
 async function openMatches(courseId) {
   state.selectedCourse = state.courses.find((course) => course.id === courseId);
   if (!state.selectedCourse || !state.profile) return;
-  const response = await fetch("/api/courses/" + courseId + "/matches?" + currentMarksQuery());
+  const response = await fetch("/api/courses/" + courseId + "/matches", { credentials: "same-origin" });
   const data = await response.json();
   state.matches = data.matches || [];
   state.selectedUniversities = new Set(state.matches
@@ -223,6 +232,7 @@ function updateSelectedCount() {
 }
 
 function renderReview() {
+  $("#application-consent").checked = false;
   $("#review-profile").textContent = state.profile.name + " · " + state.profile.email;
   $("#review-marks").textContent = "APS " + state.profile.marks.aps + " · 7 matric subjects recorded, including Life Orientation";
   const chosen = state.matches.filter((match) => state.selectedUniversities.has(match.university.id));
@@ -312,9 +322,7 @@ function renderApplications() {
 }
 
 async function decideOffer(applicationId, decision) {
-  const response = await fetch("/api/applications/" + applicationId + "/decision", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision }),
-  });
+  const response = await postJson("/api/applications/" + applicationId + "/decision", { decision });
   const data = await response.json();
   if (!response.ok) return announce(data.error || "The offer could not be updated.");
   state.applications = state.applications.map((app) => app.id === applicationId ? data.application : app);
@@ -351,9 +359,8 @@ async function openResidence(applicationId) {
 async function submitResidenceApplication(event) {
   event.preventDefault();
   if (!state.activeResidenceApplicationId || !event.currentTarget.reportValidity()) return;
-  const response = await fetch("/api/applications/" + state.activeResidenceApplicationId + "/residence", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ preference: $("#residence-preference").value, accommodation_needs: $("#accommodation-needs").value.trim() }),
+  const response = await postJson("/api/applications/" + state.activeResidenceApplicationId + "/residence", {
+    preference: $("#residence-preference").value, accommodation_needs: $("#accommodation-needs").value.trim(),
   });
   const data = await response.json();
   if (!response.ok) return announce(data.error || "The residence request could not be recorded.");
@@ -395,13 +402,9 @@ async function loadFundingPlan() {
 }
 
 async function submitApplications() {
-  const response = await fetch("/api/applications", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      student_name: state.profile.name, course_id: state.selectedCourse.id, marks: state.profile.marks,
-      upgrading: state.profile.upgrading, university_ids: [...state.selectedUniversities],
-    }),
+  if (!$("#application-consent").checked) return announce("Confirm consent to share your profile with the selected institutions before submitting.");
+  const response = await postJson("/api/applications/create", {
+    course_id: state.selectedCourse.id, university_ids: [...state.selectedUniversities], consent_to_share: true,
   });
   const data = await response.json();
   if (!response.ok) return announce(data.error || "Applications could not be submitted.");
@@ -420,9 +423,11 @@ async function loadApplications() {
 }
 
 async function start() {
-  const response = await fetch("/api/courses");
-  const data = await response.json();
+  const [response, profileResponse] = await Promise.all([fetch("/api/courses"), fetch("/api/profile")]);
+  const [data, profileData] = await Promise.all([response.json(), profileResponse.json()]);
   state.courses = data.courses || [];
+  state.profile = profileData.profile || null;
+  if (!state.profile) $("#student-email").value = profileData.account_email || "";
   renderFaculties();
   renderCourses();
   restoreProfileForm();
@@ -446,14 +451,30 @@ $("#profile-form").addEventListener("submit", (event) => {
   if (new Set(additionalNames).size !== 4 || additionalNames.some((name) => ["mathematics", "life orientation", "home or first additional language"].includes(name))) {
     return announce("Give each of the four additional subjects a different name. Mathematics, language and Life Orientation are already listed.");
   }
-  state.profile = profileFromForm();
-  localStorage.setItem("unipath-profile", JSON.stringify(state.profile));
-  const m = state.profile.marks;
-  $("#profile-reminder").textContent = "Your marks profile is ready: seven matric subjects including Life Orientation, APS " + m.aps + ".";
-  navigate("courses");
-  announce("Profile saved in this browser. Choose a course to see sample university matches.");
+  const candidate = profileFromForm();
+  postJson("/api/profile/update", { profile: candidate }).then(async (response) => {
+    const data = await response.json();
+    if (!response.ok) return announce(data.error || "The profile could not be saved.");
+    state.profile = data.profile;
+    const m = state.profile.marks;
+    $("#profile-reminder").textContent = "Your marks profile is ready: seven matric subjects including Life Orientation, APS " + m.aps + ".";
+    navigate("courses");
+    announce("Profile saved securely for your account.");
+  }).catch(() => announce("Profile could not be saved. Check your secure session and try again."));
 });
 $("#residence-form").addEventListener("submit", submitResidenceApplication);
+
+$("#delete-account-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!event.currentTarget.reportValidity()) return;
+  if (!window.confirm("Permanently delete your UniPath demo account and all associated records? This cannot be undone.")) return;
+  const response = await postJson("/api/privacy/delete-account", {
+    password: $("#delete-password").value, otp_token: $("#delete-otp").value.trim(),
+  });
+  const data = await response.json();
+  if (!response.ok) return announce(data.error || "The account could not be deleted.");
+  window.location.assign("/auth/login/");
+});
 
 $("#matches-form").addEventListener("submit", (event) => {
   event.preventDefault();

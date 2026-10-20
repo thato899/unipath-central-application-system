@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0c574d">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>UniPath — University applications in one place</title>
-    <link rel="stylesheet" href="/style.css">
-    <script src="/app.js" defer></script>
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="/assets/app.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -19,6 +20,7 @@
         <button class="nav-link" data-page="applications">My applications</button>
         <button class="nav-link" data-page="profile">My profile</button>
       </nav>
+      <form id="logout-form" action="/auth/logout/" method="post" class="logout-form"><input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}"><button class="access-button" type="submit">Sign out</button></form>
       <div class="access-tools" aria-label="Accessibility tools">
         <button class="access-button" id="read-aloud" aria-label="Read page aloud"><span aria-hidden="true">▶</span> Read aloud</button>
         <div class="text-size-control" role="group" aria-label="Text size">
@@ -40,9 +42,9 @@
             <legend>Student profile</legend>
             <p class="help">Use sample details for this demo. You can update them before applying.</p>
             <div class="form-grid">
-              <label>Full name<input id="student-name" name="student_name" autocomplete="name" required value="Thato Student"></label>
-              <label>Email address<input id="student-email" name="email" type="email" autocomplete="email" required value="student@example.org"></label>
-              <label>Admission Point Score (APS)<input id="aps" name="aps" type="number" min="0" max="50" required value="36"></label>
+              <label>Full name<input id="student-name" name="student_name" autocomplete="name" required></label>
+              <label>Email address<input id="student-email" name="email" type="email" autocomplete="email" readonly required></label>
+              <label>Admission Point Score (APS)<input id="aps" name="aps" type="number" min="0" max="50" required></label>
             </div>
           </fieldset>
           <fieldset class="panel">
@@ -52,22 +54,34 @@
             <input id="marks-file" type="file" accept=".pdf,.png,.jpg,.jpeg">
             <p class="help" id="file-name">No file selected. You can enter marks manually.</p>
             <div class="form-grid marks-grid">
-              <label>Home or First Additional Language (%)<input id="english" name="english" type="number" min="0" max="100" required value="68"></label>
-              <label>Mathematics (%)<input id="mathematics" name="mathematics" type="number" min="0" max="100" required value="74"></label>
-              <label>Life Orientation (%) <span class="required-note">Required</span><input id="life-orientation" name="life_orientation" type="number" min="0" max="100" required value="78"></label>
-              <label>Subject 4 name<input id="subject-4-name" name="subject_4_name" required value="Life Sciences"></label>
-              <label>Subject 4 mark (%)<input id="subject-4" name="subject_4" type="number" min="0" max="100" required value="72"></label>
-              <label>Subject 5 name<input id="subject-5-name" name="subject_5_name" required value="Physical Sciences"></label>
-              <label>Subject 5 mark (%)<input id="subject-5" name="subject_5" type="number" min="0" max="100" required value="70"></label>
-              <label>Subject 6 name<input id="subject-6-name" name="subject_6_name" required value="Geography"></label>
-              <label>Subject 6 mark (%)<input id="subject-6" name="subject_6" type="number" min="0" max="100" required value="66"></label>
-              <label>Subject 7 name<input id="subject-7-name" name="subject_7_name" required value="Accounting"></label>
-              <label>Subject 7 mark (%)<input id="subject-7" name="subject_7" type="number" min="0" max="100" required value="64"></label>
+              <label>Home or First Additional Language (%)<input id="english" name="english" type="number" min="0" max="100" required></label>
+              <label>Mathematics (%)<input id="mathematics" name="mathematics" type="number" min="0" max="100" required></label>
+              <label>Life Orientation (%) <span class="required-note">Required</span><input id="life-orientation" name="life_orientation" type="number" min="0" max="100" required></label>
+              <label>Subject 4 name<input id="subject-4-name" name="subject_4_name" required></label>
+              <label>Subject 4 mark (%)<input id="subject-4" name="subject_4" type="number" min="0" max="100" required></label>
+              <label>Subject 5 name<input id="subject-5-name" name="subject_5_name" required></label>
+              <label>Subject 5 mark (%)<input id="subject-5" name="subject_5" type="number" min="0" max="100" required></label>
+              <label>Subject 6 name<input id="subject-6-name" name="subject_6_name" required></label>
+              <label>Subject 6 mark (%)<input id="subject-6" name="subject_6" type="number" min="0" max="100" required></label>
+              <label>Subject 7 name<input id="subject-7-name" name="subject_7_name" required></label>
+              <label>Subject 7 mark (%)<input id="subject-7" name="subject_7" type="number" min="0" max="100" required></label>
               <label class="check-row"><input id="upgrading" name="upgrading" type="checkbox"><span>I am upgrading one or more marks</span></label>
             </div>
           </fieldset>
           <div class="form-actions"><p class="help">Your profile is kept in this browser for the demo.</p><button class="button primary" type="submit">Save profile and explore courses</button></div>
         </form>
+        <section class="panel privacy-panel" aria-labelledby="privacy-controls-title">
+          <h2 id="privacy-controls-title">Privacy and account controls</h2>
+          <p>Your marks are encrypted in this application's database. You can update them above, export your information, or delete your account and associated demo records.</p>
+          <a class="button secondary" href="/api/privacy/export">Export my personal information</a>
+          <form id="delete-account-form" class="auth-form">
+            <h3>Delete account and application data</h3>
+            <p class="help">This permanently removes the demo account and its profile, applications, residence requests, and consent record. Enter your password and a current authenticator code.</p>
+            <label class="form-grid-label">Password<input id="delete-password" type="password" autocomplete="current-password" required></label>
+            <label class="form-grid-label">Authenticator code<input id="delete-otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+            <button class="button danger" type="submit">Delete my account</button>
+          </form>
+        </section>
       </section>
       <section class="page hidden" id="page-courses" aria-labelledby="courses-title">
         <p class="eyebrow">SOUTH AFRICAN UNIVERSITY APPLICATIONS · DEMO</p>
@@ -100,6 +114,7 @@
         <div class="panel"><div class="panel-heading"><div><h2>Your shared profile</h2><p id="review-profile"></p><p id="review-marks"></p></div><button class="button secondary" data-page="profile">Edit profile</button></div></div>
         <h2 class="section-title">Applications to submit</h2><div id="review-list" class="review-list"></div>
         <div class="eligibility-note"><p>By submitting, you agree to share your profile and marks with the universities listed above.</p></div>
+        <label class="consent-row"><input id="application-consent" type="checkbox" required><span>I consent to share my profile and marks with only the universities listed above for this demo application.</span></label>
         <div class="sticky-actions"><span id="review-count"></span><button class="button primary" id="submit-applications">Submit applications</button></div>
       </section>
       <section class="page hidden" id="page-applications" aria-labelledby="applications-title">

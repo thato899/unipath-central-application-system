@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create account · UniPath</title><link rel="stylesheet" href="/assets/style.css">
+</head>
+<body><main class="auth-shell" id="main" tabindex="-1">
+  <a class="brand" href="/">UniPath</a><p class="eyebrow">CREATE YOUR ACCOUNT</p>
+  <h1>Start your application profile</h1>
+  <p>UniPath uses your email to sign you in and your application details to prepare and track university applications. Your profile and marks are encrypted in the local demo database.</p>
+  <p>Data is used for this application journey, shown only to your signed-in account, and shared with institutions only after you explicitly choose destinations and confirm. No data is sent to a real university or NSFAS in this prototype. You can access, correct, export, or delete your demo information from your profile.</p>
+  {% for message in messages %}<p class="notice">{{ message }}</p>{% endfor %}
+  <form method="post" class="panel auth-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div role="alert" class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}<label class="form-grid-label">{{ field.label }} {{ field }}{% if field.help_text %}<span class="help">{{ field.help_text|safe }}</span>{% endif %}{% if field.errors %}<span class="form-errors">{{ field.errors }}</span>{% endif %}</label>{% endfor %}
+    <button class="button primary" type="submit">Create account and set up 2FA</button>
+  </form>
+  <p><a href="/auth/login/">I already have an account</a></p>
+  <p class="demo-note">POPIA safeguards depend on the organisation operating the service, its purposes, contracts, retention rules, security operations, and Information Officer. This prototype does not certify legal compliance and should not hold real student records.</p>
+</main></body></html>

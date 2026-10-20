@@ -380,6 +380,9 @@ class DemoHandler(BaseHTTPRequestHandler):
         print(f"[{self.log_date_time_string()}] {format % args}")
 
 if __name__ == "__main__":
-    print(f"UniPath demo running at http://{HOST}:{PORT}")
-    print("UP programme names are examples; entry requirements and admissions are illustrative only.")
-    ThreadingHTTPServer((HOST, PORT), DemoHandler).serve_forever()
+    from dotenv import load_dotenv
+    from django.core.management import execute_from_command_line
+    load_dotenv(ROOT / ".env")
+    import os
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "unipath_project.settings")
+    execute_from_command_line(["manage.py", "runserver", "127.0.0.1:8000"])
