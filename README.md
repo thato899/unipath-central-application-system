@@ -19,6 +19,10 @@ Open http://127.0.0.1:8000. Create an account, then enroll an authenticator app 
 
 On macOS/Linux, activate the virtual environment with `source .venv/bin/activate`.
 
+## Mobile app
+
+The native Android/iOS client is in [`mobile/`](mobile/README.md). It uses Expo and connects to this Django API; no marks or profile are cached on the phone. Mobile setup, API address, simulator, and device instructions are in its README.
+
 ## Privacy and security
 
 The prototype requires two-factor sign-in, uses CSRF-protected state changes, encrypts profile/marks and accommodation notes in the database, records the privacy-notice version, requests explicit destination consent, and offers personal-data export and password-plus-2FA account deletion. Read [privacy and security design](docs/privacy-security.md) for the limits and production requirements. Use fictional information only; this prototype does not certify POPIA compliance and is not approved for real student records.

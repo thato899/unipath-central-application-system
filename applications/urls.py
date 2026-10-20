@@ -1,7 +1,10 @@
 from django.urls import path
 from . import api, privacy
+from . import mobile_auth
 
 urlpatterns = [
+    path("mobile/login", mobile_auth.mobile_login),
+    path("mobile/logout", mobile_auth.mobile_logout),
     path("auth/status", api.auth_status),
     path("profile", api.profile_detail),
     path("profile/update", api.profile_update),

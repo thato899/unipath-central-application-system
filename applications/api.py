@@ -1,17 +1,33 @@
 import json
 import uuid
+import hashlib
 from functools import wraps
+from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from app import COURSES, UNIVERSITIES, course_for, match_status, university_for
 from .models import ApplicantProfile, Application, ResidenceApplication
+from .models import MobileSession
 
 def otp_api(view):
     @wraps(view)
     def wrapped(request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_verified():
-            return JsonResponse({"error": "Sign in and complete two-factor authentication first."}, status=401)
+            scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+            if scheme.lower() == "bearer" and token:
+                digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
+                mobile_session = MobileSession.objects.select_related("user", "otp_device").filter(
+                    token_digest=digest, revoked_at__isnull=True, expires_at__gt=timezone.now()
+                ).first()
+                if mobile_session and mobile_session.otp_device.confirmed and mobile_session.user.is_active:
+                    verified_user = mobile_session.user
+                    verified_user.otp_device = mobile_session.otp_device
+                    verified_user.is_verified = lambda: verified_user.otp_device is not None
+                    request.user = verified_user
+                    request.mobile_session = mobile_session
+            if not request.user.is_authenticated or not request.user.is_verified():
+                return JsonResponse({"error": "Sign in with your password and two-factor code first."}, status=401)
         return view(request, *args, **kwargs)
     return wrapped
 

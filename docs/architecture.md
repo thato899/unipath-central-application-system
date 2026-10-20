@@ -8,6 +8,7 @@ UniPath is a local Django proof of concept. Django serves the accessible browser
 Browser (static/index.html, app.js, style.css)
   └─ CSRF-protected JSON ──> Django (127.0.0.1:8000)
        ├─ django-otp password + TOTP authentication
+       ├─ short-lived mobile bearer sessions (token hashes only)
        ├─ SQLite account/application records
        ├─ Fernet-encrypted profile/marks and residence notes
        └─ in-memory catalogue from app.py (illustrative UP and demo data)
@@ -16,7 +17,7 @@ Browser (static/index.html, app.js, style.css)
 ## Data flow
 
 1. Registration records the accepted privacy notice version and requires TOTP enrollment.
-2. A verified session loads courses and the signed-in student's saved profile from the API.
+2. Web sessions or a native password + TOTP sign-in load the signed-in student's records. Native credentials are stored in iOS Keychain/Android Keystore through Expo SecureStore.
 3. Profile updates are validated and encrypted before storage. Exactly seven unique subjects are required, including Life Orientation.
 4. Application submission requires explicit destination-sharing consent. Server-side validation checks selected course/university eligibility, duplicate submissions, and the upgrading path.
 5. Each application receives a simulated offer. A student can accept one offer, then record a residence preference; the funding summary derives its destination from that offer.

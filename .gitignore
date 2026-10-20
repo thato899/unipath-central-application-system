@@ -14,4 +14,7 @@ Thumbs.db
 .claude/
 .dist/
 var/
+node_modules/
+.expo/
+dist/
 

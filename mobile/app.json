@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "UniPath",
+    "slug": "unipath-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "za.co.unipath.mobile",
+      "config": { "usesNonExemptEncryption": false }
+    },
+    "android": {
+      "package": "za.co.unipath.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [["expo-secure-store", { "configureAndroidBackup": true }]],
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

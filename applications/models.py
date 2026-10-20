@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django_otp.plugins.otp_totp.models import TOTPDevice
 from .fields import EncryptedJSONField, EncryptedTextField
 
 class DataConsent(models.Model):
@@ -37,3 +38,12 @@ class ResidenceApplication(models.Model):
     accommodation_needs = EncryptedTextField(blank=True, default="")
     status = models.CharField(max_length=32, default="request_recorded_demo")
     created_at = models.DateTimeField(auto_now_add=True)
+
+class MobileSession(models.Model):
+    """Hashed bearer credential tied to a confirmed TOTP device."""
+    token_digest = models.CharField(max_length=64, primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="mobile_sessions")
+    otp_device = models.ForeignKey(TOTPDevice, on_delete=models.CASCADE, related_name="mobile_sessions")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
