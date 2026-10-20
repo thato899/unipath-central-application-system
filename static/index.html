@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0c574d">
+    <title>UniPath — University applications in one place</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+      <a class="brand" href="#courses" aria-label="UniPath home">
+        <span class="brand-mark" aria-hidden="true">U</span><span>UniPath</span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-page="courses">Explore courses</button>
+        <button class="nav-link" data-page="applications">My applications</button>
+        <button class="nav-link" data-page="profile">My profile</button>
+      </nav>
+      <div class="access-tools" aria-label="Accessibility tools">
+        <button class="access-button" id="read-aloud" aria-label="Read page aloud"><span aria-hidden="true">▶</span> Read aloud</button>
+        <div class="text-size-control" role="group" aria-label="Text size">
+          <span class="control-label">Text size</span>
+          <button class="icon-button" id="text-smaller" aria-label="Decrease text size">A−</button>
+          <button class="icon-button" id="text-larger" aria-label="Increase text size">A+</button>
+        </div>
+        <button class="access-button" id="contrast-toggle" aria-pressed="false"><span aria-hidden="true">◐</span> High contrast: Off</button>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div class="status-message" id="live-status" role="status" aria-live="polite"></div>
+      <section class="page hidden" id="page-profile" aria-labelledby="profile-title">
+        <p class="eyebrow">GET STARTED</p>
+        <h1 id="profile-title">Your profile. One application journey.</h1>
+        <p class="lead">Add your details and marks once. Reuse this profile when applying to courses at different universities.</p>
+        <form id="profile-form">
+          <fieldset class="panel">
+            <legend>Student profile</legend>
+            <p class="help">Use sample details for this demo. You can update them before applying.</p>
+            <div class="form-grid">
+              <label>Full name<input id="student-name" name="student_name" autocomplete="name" required value="Thato Student"></label>
+              <label>Email address<input id="student-email" name="email" type="email" autocomplete="email" required value="student@example.org"></label>
+              <label>Admission Point Score (APS)<input id="aps" name="aps" type="number" min="0" max="50" required value="36"></label>
+            </div>
+          </fieldset>
+          <fieldset class="panel">
+            <legend>Your marks</legend>
+            <p class="help">Enter all seven NSC subjects, including compulsory Life Orientation. Marks must be between 0 and 100.</p>
+            <label class="file-label" for="marks-file">Marks statement (optional)</label>
+            <input id="marks-file" type="file" accept=".pdf,.png,.jpg,.jpeg">
+            <p class="help" id="file-name">No file selected. You can enter marks manually.</p>
+            <div class="form-grid marks-grid">
+              <label>Home or First Additional Language (%)<input id="english" name="english" type="number" min="0" max="100" required value="68"></label>
+              <label>Mathematics (%)<input id="mathematics" name="mathematics" type="number" min="0" max="100" required value="74"></label>
+              <label>Life Orientation (%) <span class="required-note">Required</span><input id="life-orientation" name="life_orientation" type="number" min="0" max="100" required value="78"></label>
+              <label>Subject 4 name<input id="subject-4-name" name="subject_4_name" required value="Life Sciences"></label>
+              <label>Subject 4 mark (%)<input id="subject-4" name="subject_4" type="number" min="0" max="100" required value="72"></label>
+              <label>Subject 5 name<input id="subject-5-name" name="subject_5_name" required value="Physical Sciences"></label>
+              <label>Subject 5 mark (%)<input id="subject-5" name="subject_5" type="number" min="0" max="100" required value="70"></label>
+              <label>Subject 6 name<input id="subject-6-name" name="subject_6_name" required value="Geography"></label>
+              <label>Subject 6 mark (%)<input id="subject-6" name="subject_6" type="number" min="0" max="100" required value="66"></label>
+              <label>Subject 7 name<input id="subject-7-name" name="subject_7_name" required value="Accounting"></label>
+              <label>Subject 7 mark (%)<input id="subject-7" name="subject_7" type="number" min="0" max="100" required value="64"></label>
+              <label class="check-row"><input id="upgrading" name="upgrading" type="checkbox"><span>I am upgrading one or more marks</span></label>
+            </div>
+          </fieldset>
+          <div class="form-actions"><p class="help">Your profile is kept in this browser for the demo.</p><button class="button primary" type="submit">Save profile and explore courses</button></div>
+        </form>
+      </section>
+      <section class="page hidden" id="page-courses" aria-labelledby="courses-title">
+        <p class="eyebrow">SOUTH AFRICAN UNIVERSITY APPLICATIONS · DEMO</p>
+        <h1 id="courses-title">Explore programmes across UP faculties</h1>
+        <p class="lead">Browse programme examples by faculty, learn where they can lead, and compare listed universities against your marks.</p>
+        <div class="profile-reminder" id="profile-reminder"></div>
+        <h2 class="section-label">Browse all nine faculties</h2>
+        <div class="faculty-list" id="faculty-list" aria-label="Filter courses by faculty"></div>
+        <div class="course-grid" id="course-list"></div>
+        <p class="demo-note">The catalogue follows undergraduate programme lists in the <a href="https://www.up.ac.za/yearbooks/home" target="_blank" rel="noreferrer">UP Yearbook 2026</a>. Demo admission thresholds and outcomes are illustrative, not official UP requirements or decisions. Programme names and rules can change; check the current Yearbook before applying.</p>
+      </section>
+      <section class="page hidden" id="page-matches" aria-labelledby="matches-title">
+        <button class="back-link" data-page="courses">← Back to courses</button>
+        <p class="breadcrumb" id="matches-breadcrumb"></p>
+        <h1 id="matches-title"></h1><p class="lead" id="matches-description"></p>
+        <p class="career-line" id="matches-careers"></p><div id="match-summary"></div>
+        <h2 class="section-title">Universities offering this course</h2>
+        <p class="help">Review the sample matches and choose where you want to apply.</p>
+        <form id="matches-form">
+          <div class="match-grid" id="match-list"></div>
+          <div class="eligibility-note"><h3>How matching works</h3><p>We compare your marks with the listed requirements. A match is guidance, not an admission decision.</p></div>
+          <div class="sticky-actions"><span id="selected-count">No universities selected</span><button class="button primary" type="submit" id="review-applications" disabled>Review selected applications</button></div>
+        </form>
+      </section>
+      <section class="page hidden" id="page-review" aria-labelledby="review-title">
+        <button class="back-link" data-page="matches">← Back to university matches</button>
+        <p class="breadcrumb">Explore courses / Review</p>
+        <h1 id="review-title">Review your applications</h1>
+        <p class="lead">Check where your shared profile will be sent before you submit.</p>
+        <div class="panel"><div class="panel-heading"><div><h2>Your shared profile</h2><p id="review-profile"></p><p id="review-marks"></p></div><button class="button secondary" data-page="profile">Edit profile</button></div></div>
+        <h2 class="section-title">Applications to submit</h2><div id="review-list" class="review-list"></div>
+        <div class="eligibility-note"><p>By submitting, you agree to share your profile and marks with the universities listed above.</p></div>
+        <div class="sticky-actions"><span id="review-count"></span><button class="button primary" id="submit-applications">Submit applications</button></div>
+      </section>
+      <section class="page hidden" id="page-applications" aria-labelledby="applications-title">
+        <p class="eyebrow">YOUR APPLICATIONS · DEMO</p>
+        <h1 id="applications-title">Application tracker</h1>
+        <p class="lead">See every university response in one place, with clear words as well as status color.</p>
+        <div id="application-summary" class="summary-panel"></div>
+        <h2 class="section-title">Status by university</h2><div id="application-list" class="application-list"></div>
+        <div id="empty-applications" class="empty-state hidden"><h2>No applications yet</h2><p>Choose a course to compare universities and start an application.</p><button class="button primary" data-page="courses">Explore courses</button></div>
+        <p class="demo-note">Sample responses are simulated. No real university is contacted.</p>
+      </section>
+      <section class="page hidden" id="page-offer" aria-labelledby="offer-title">
+        <p class="breadcrumb">My applications / Offer response</p>
+        <div class="success-icon" id="offer-icon" aria-hidden="true">✓</div>
+        <h1 id="offer-title"></h1><p class="lead" id="offer-message"></p>
+        <div class="panel offer-panel" id="offer-details"></div>
+        <div class="next-step hidden" id="residence-next-step"><h2>Next step: residence</h2><p>Residence applications are a future university connection and are not active in this demo.</p></div>
+        <button class="button secondary" data-page="applications">Back to application tracker</button>
+      </section>
+    </main>
+    <footer><p>UniPath is a local proof of concept. Demo data only; no real university or NSFAS system is connected.</p></footer>
+  </body>
+</html>

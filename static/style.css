@@ -1,0 +1,84 @@
+:root {
+  color-scheme: light;
+  --ink: #142a40; --body: #34495d; --muted: #566575; --teal: #0c574d;
+  --teal-soft: #e7f3f0; --green: #145b3c; --green-soft: #e9f4ed;
+  --amber: #70440a; --amber-soft: #fff5d8; --red: #8b2825; --red-soft: #fbebe9;
+  --bg: #f5f8f9; --surface: #fff; --line: #cbd5db; --scale: 1;
+  font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: calc(16px * var(--scale));
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--body); line-height: 1.55; }
+button, input { font: inherit; } button { cursor: pointer; } a { color: var(--teal); }
+.skip-link { position: absolute; left: 1rem; top: -5rem; z-index: 20; background: var(--ink); color: #fff; padding: .75rem 1rem; border-radius: .5rem; }
+.skip-link:focus { top: .75rem; } :focus-visible { outline: 3px solid #a54300; outline-offset: 3px; }
+.site-header { min-height: 86px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 1.5rem; padding: .8rem clamp(1rem, 4vw, 3.5rem); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: .65rem; color: var(--ink); font-size: 1.25rem; font-weight: 750; text-decoration: none; white-space: nowrap; }
+.brand-mark { display: inline-grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; color: #fff; background: var(--teal); font-weight: 800; }
+.main-nav { display: flex; align-items: center; gap: .3rem; }
+.nav-link, .back-link { border: 0; background: transparent; color: var(--body); padding: .6rem .75rem; border-radius: .5rem; font-weight: 650; }
+.nav-link:hover, .back-link:hover { background: var(--teal-soft); color: var(--ink); }
+.nav-link.active { color: var(--teal); text-decoration: underline; text-underline-offset: .35rem; }
+.access-tools { display: flex; gap: .45rem; align-items: center; margin-left: auto; flex-wrap: wrap; }
+.access-button, .icon-button { min-height: 44px; border: 1px solid var(--line); border-radius: .65rem; background: var(--surface); color: var(--ink); padding: .5rem .75rem; font-weight: 650; }
+.access-button:hover, .icon-button:hover { background: var(--teal-soft); }
+.text-size-control { display: flex; gap: .3rem; align-items: center; } .control-label { font-size: .82rem; color: var(--muted); }
+.icon-button { min-width: 44px; padding: .4rem; }
+main { width: min(1248px, calc(100% - 2rem)); min-height: calc(100vh - 152px); margin: 0 auto; padding: 2.25rem 0 3.5rem; }
+.page { display: block; } .hidden { display: none !important; }
+.eyebrow { margin: 0 0 .55rem; color: var(--teal); font-size: .8rem; font-weight: 800; letter-spacing: .075em; }
+h1, h2, h3, p { margin-top: 0; } h1 { color: var(--ink); font-size: clamp(2rem, 4vw, 2.55rem); line-height: 1.15; margin-bottom: .85rem; letter-spacing: -.025em; }
+h2 { color: var(--ink); } .lead { max-width: 850px; font-size: 1.08rem; margin-bottom: 1.5rem; }
+.section-label { margin: 1.9rem 0 .75rem; color: var(--muted); font-size: .84rem; letter-spacing: .07em; text-transform: uppercase; }
+.section-title { margin: 2rem 0 .6rem; font-size: 1.4rem; } .breadcrumb { color: var(--muted); margin-bottom: .7rem; font-size: .9rem; }
+.profile-reminder, .eligibility-note, .next-step { background: var(--teal-soft); border-radius: .85rem; padding: 1rem 1.25rem; margin: 1.25rem 0; color: var(--ink); }
+.faculty-list { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.3rem; }
+.faculty-button { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: .65rem 1rem; font-weight: 650; }
+.faculty-button[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.course-grid, .match-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.course-card, .match-card, .panel, .application-card, .summary-panel, .review-card { background: var(--surface); border: 1px solid var(--line); border-radius: 1rem; padding: 1.35rem; }
+.course-card { display: flex; flex-direction: column; gap: .8rem; } .course-card h2 { margin: .2rem 0 0; font-size: 1.35rem; } .course-card p { margin-bottom: 0; }
+.faculty-tag { color: var(--teal); background: var(--teal-soft); border-radius: 999px; padding: .3rem .7rem; font-size: .78rem; font-weight: 750; align-self: flex-start; }
+.career-list { display: flex; flex-wrap: wrap; gap: .45rem; padding: 0; list-style: none; margin: .2rem 0 .45rem; }
+.career-list li { background: var(--bg); border: 1px solid var(--line); border-radius: .45rem; padding: .35rem .6rem; }
+.course-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: auto; padding-top: .4rem; }
+.status-badge { display: inline-flex; gap: .4rem; align-items: center; border-radius: 999px; padding: .42rem .7rem; font-weight: 750; font-size: .82rem; }
+.status-badge.green { background: var(--green-soft); color: var(--green); } .status-badge.amber { background: var(--amber-soft); color: var(--amber); }
+.status-badge.red { background: var(--red-soft); color: var(--red); } .status-badge.teal { background: var(--teal-soft); color: var(--teal); }
+.button { min-height: 48px; border: 1px solid transparent; border-radius: .7rem; padding: .7rem 1.05rem; font-weight: 750; }
+.button.primary { color: #fff; background: var(--teal); } .button.primary:hover { background: #09483f; }
+.button.secondary { color: var(--ink); border-color: var(--line); background: var(--surface); } .button.secondary:hover { background: var(--teal-soft); }
+.button.danger { color: var(--red); border-color: var(--red); background: var(--surface); } .button:disabled { cursor: not-allowed; opacity: .55; }
+.demo-note, .help { color: var(--muted); font-size: .9rem; } .career-line { color: var(--body); margin: 1rem 0; }
+.match-card { display: flex; flex-direction: column; gap: .7rem; } .match-card h3 { margin: 0; color: var(--ink); font-size: 1.25rem; }
+.match-card .requirements { padding-top: .65rem; border-top: 1px solid var(--line); } .match-card .requirements p { margin: .2rem 0; }
+.select-row, .check-row { display: flex; align-items: center; gap: .65rem; font-weight: 700; color: var(--ink); }
+input[type="checkbox"] { width: 1.25rem; height: 1.25rem; accent-color: var(--teal); }
+.sticky-actions, .form-actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; padding: 1rem 1.2rem; background: var(--surface); border: 1px solid var(--line); border-radius: .9rem; }
+.panel { margin: 1rem 0; } .panel legend { padding: 0 .35rem; color: var(--ink); font-size: 1.3rem; font-weight: 750; }
+.panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; } .panel-heading h2 { margin-bottom: .45rem; } .panel-heading p { margin: .2rem 0; }
+.form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.form-grid label:not(.check-row) { display: grid; gap: .4rem; color: var(--ink); font-weight: 700; }
+input:not([type="checkbox"]):not([type="file"]) { width: 100%; min-height: 48px; border: 1px solid #82909b; border-radius: .55rem; padding: .6rem .75rem; color: var(--ink); background: var(--surface); }
+input[type="file"] { display: block; max-width: 100%; margin: .4rem 0; color: var(--ink); } .file-label { font-weight: 700; color: var(--ink); }
+.check-row { margin-top: 1.8rem; } .form-actions { border: 0; background: transparent; padding: 0; }
+.review-list, .application-list { display: grid; gap: .8rem; }
+.review-card, .application-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.review-card h3, .application-card h3 { margin: 0 0 .3rem; color: var(--ink); } .review-card p, .application-card p { margin: .15rem 0; }
+.application-card .application-main { flex: 1; } .summary-panel { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1.3rem; }
+.summary-panel h2 { margin: 0; } .empty-state { border: 1px dashed var(--line); border-radius: 1rem; padding: 2rem; text-align: center; background: var(--surface); }
+.success-icon { display: grid; place-items: center; width: 4.2rem; height: 4.2rem; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 2rem; font-weight: 800; margin: 1rem 0; }
+.offer-panel { max-width: 850px; margin: 1.5rem 0; } .next-step { max-width: 850px; margin: 1rem 0 1.5rem; }
+.status-message { min-height: 1.4rem; color: var(--ink); font-weight: 650; }
+footer { border-top: 1px solid var(--line); padding: 1rem 2rem; text-align: center; color: var(--muted); font-size: .86rem; background: var(--surface); } footer p { margin: 0; }
+.high-contrast { color-scheme: dark; --ink: #fff; --body: #fff; --muted: #e2e8f0; --teal: #ffec5c; --teal-soft: #17212b; --green: #a6f4c5; --green-soft: #10241a; --amber: #ffe08a; --amber-soft: #2c2413; --red: #ffb4ab; --red-soft: #351817; --bg: #000; --surface: #080808; --line: #fff; }
+.high-contrast .brand-mark, .high-contrast .button.primary, .high-contrast .faculty-button[aria-pressed="true"] { color: #000; background: #ffec5c; border-color: #ffec5c; }
+.high-contrast .site-header, .high-contrast footer { background: #000; } .high-contrast input { color: #fff !important; background: #000 !important; border-color: #fff !important; }
+@media (max-width: 980px) { .site-header { align-items: flex-start; } .main-nav { order: 3; width: 100%; } .access-tools { margin-left: 0; } .course-grid, .match-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 620px) {
+  main { width: min(100% - 1.25rem, 1248px); padding-top: 1.2rem; }
+  .site-header { padding: .8rem; gap: .65rem; } .access-tools { width: 100%; } .access-button { flex: 1; font-size: .85rem; }
+  .text-size-control { flex: 1; justify-content: center; } .main-nav { overflow-x: auto; } .nav-link { white-space: nowrap; padding: .5rem; font-size: .88rem; }
+  .form-grid { grid-template-columns: 1fr; } .check-row { margin-top: .3rem; }
+  .course-card-footer, .sticky-actions, .form-actions, .panel-heading, .review-card, .application-card, .summary-panel { align-items: stretch; flex-direction: column; }
+  .sticky-actions .button, .course-card-footer .button, .form-actions .button { width: 100%; }
+}
