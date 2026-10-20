@@ -30,7 +30,7 @@ Browser (static/index.html, style.css, app.js)
 2. The browser loads the programme list from `GET /api/courses` and university list from `GET /api/universities`.
 3. For a selected programme, the browser requests illustrative matches using APS, Mathematics, English, and upgrading status.
 4. On submission, the browser posts the selected university IDs and marks. The server checks the programme, destinations, seven-subject record, and demo eligibility path.
-5. The server stores sample applications in process memory. The first created application receives a simulated offer; later records remain in review.
+5. The server stores sample applications in process memory and creates a simulated offer for each selected destination.
 6. The student can post an accept/reject decision for a simulated offer.
 
 ## Current constraints
@@ -45,4 +45,4 @@ Browser (static/index.html, style.css, app.js)
 
 ## Future integration boundary
 
-The local `/api` endpoints are a prototype contract, not a production integration. A production system needs university-authorized data feeds and agreements, identity and access controls, consent and privacy design, secure document handling, persistent records, audit trails, and institution-specific rules. NSFAS and residence flows are outside the current implementation.
+The local `/api` endpoints are a prototype contract, not a production integration. A production system needs university-authorized data feeds and agreements, identity and access controls, consent and privacy design, secure document handling, persistent records, audit trails, and institution-specific rules. The current residence request and NSFAS destination summary only exercise the local student flow; neither sends data to an external organization.

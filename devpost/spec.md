@@ -48,6 +48,9 @@ Implements `prd.md > Course discovery and university matching` and `prd.md > App
 - `GET /api/applications`
 - `POST /api/applications`
 - `POST /api/applications/{application_id}/decision`
+- `GET /api/residence`
+- `POST /api/applications/{application_id}/residence` (accepted offer required)
+- `GET /api/funding-plan` (derived destination summary; never sends data to NSFAS)
 
 These endpoints define a local prototype contract, not a live university connection. They do not include real integration authentication, partner data, or NSFAS connectivity.
 

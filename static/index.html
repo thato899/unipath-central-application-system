@@ -116,8 +116,41 @@
         <div class="success-icon" id="offer-icon" aria-hidden="true">✓</div>
         <h1 id="offer-title"></h1><p class="lead" id="offer-message"></p>
         <div class="panel offer-panel" id="offer-details"></div>
-        <div class="next-step hidden" id="residence-next-step"><h2>Next step: residence</h2><p>Residence applications are a future university connection and are not active in this demo.</p></div>
+        <div class="next-step hidden" id="residence-next-step"><h2>Next step: residence</h2><p>You can record a residence preference for the university where you accepted an offer.</p><button class="button primary" id="start-residence">Apply for residence</button> <button class="button secondary" id="view-funding-plan">View funding destination summary</button></div>
         <button class="button secondary" data-page="applications">Back to application tracker</button>
+      </section>
+      <section class="page hidden" id="page-residence" aria-labelledby="residence-title">
+        <button class="back-link" data-page="applications">← Back to application tracker</button>
+        <p class="eyebrow">AFTER ACCEPTING AN OFFER · DEMO</p>
+        <h1 id="residence-title">Residence application</h1>
+        <p class="lead" id="residence-university"></p>
+        <form id="residence-form">
+          <fieldset class="panel">
+            <legend>Your accommodation preference</legend>
+            <label class="form-grid-label">Preferred option
+              <select id="residence-preference" required>
+                <option value="">Choose an option</option>
+                <option>On-campus residence</option>
+                <option>Off-campus accommodation support</option>
+                <option>Either option</option>
+              </select>
+            </label>
+            <label class="form-grid-label">Accessibility or accommodation needs (optional)
+              <textarea id="accommodation-needs" maxlength="500" rows="4" aria-describedby="residence-privacy-note"></textarea>
+            </label>
+            <p id="residence-privacy-note" class="help">Use sample information only. This local demo records your preference; it does not contact a residence office.</p>
+          </fieldset>
+          <div class="sticky-actions"><span>Request destination is tied to your accepted university.</span><button class="button primary" type="submit">Record residence request</button></div>
+        </form>
+      </section>
+      <section class="page hidden" id="page-funding" aria-labelledby="funding-title">
+        <button class="back-link" data-page="applications">← Back to application tracker</button>
+        <p class="eyebrow">FUNDING DESTINATION · DEMO SUMMARY</p>
+        <h1 id="funding-title">NSFAS destination summary</h1>
+        <p class="lead">This summary derives the university from your accepted offer and includes your residence request when recorded.</p>
+        <div class="panel offer-panel" id="funding-plan"></div>
+        <button class="button primary hidden" id="funding-apply-residence">Apply for residence</button>
+        <p class="demo-note">No information is sent to NSFAS. A real allocation requires an approved NSFAS integration and student consent.</p>
       </section>
     </main>
     <footer><p>UniPath is a local proof of concept. Demo data only; no real university or NSFAS system is connected.</p></footer>

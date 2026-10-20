@@ -31,6 +31,10 @@ Returns the universities offering the selected sample course, illustrative requi
 
 Returns in-memory application records and `sample_data`. Records reset when the Python server stops.
 
+## `GET /api/residence`
+
+Returns residence requests recorded in the current server process. A request is tied to one accepted application and its university.
+
 ## `POST /api/applications`
 
 JSON request fields:
@@ -58,11 +62,28 @@ JSON request fields:
 }
 ```
 
-Requires a valid course, at least one valid university offering it, exactly seven named subject marks including `Life Orientation`, and either a matching threshold or an enabled upgrading path. Returns HTTP 201 with created applications. The first application in process memory gets a simulated offer; later applications get `in_review`.
+Requires a valid course, at least one valid university offering it, exactly seven unique named subject marks including `Life Orientation`, and either a matching threshold or an enabled upgrading path. Returns HTTP 201 with created applications. Each selected destination receives a simulated offer. Duplicate course/university applications are rejected.
 
 ## `POST /api/applications/{application_id}/decision`
 
-JSON request: `{ "decision": "accept" }` or `{ "decision": "reject" }`. Updates a matching simulated offer. Invalid decisions or applications return HTTP 400 or 404.
+JSON request: `{ "decision": "accepted" }` or `{ "decision": "rejected" }`. Updates a matching simulated offer. Only one offer can be accepted in this single-student demo. Invalid decisions or applications return HTTP 400; accepting a second offer returns HTTP 409.
+
+## `POST /api/applications/{application_id}/residence`
+
+An accepted offer is required. One residence request may be recorded for that offer.
+
+```json
+{
+  "preference": "On-campus residence",
+  "accommodation_needs": "Step-free access requested"
+}
+```
+
+`preference` must be `On-campus residence`, `Off-campus accommodation support`, or `Either option`. Optional accommodation notes are limited to 500 characters. The response includes the accepted university, programme, selected preference, and status `request_recorded_demo`. This is stored in memory and is not sent to a residence office.
+
+## `GET /api/funding-plan`
+
+Derives the destination from the one accepted application and includes the residence preference when recorded. Status is `no_accepted_offer`, `waiting_for_residence`, or `summary_ready_demo`. `sent_to_nsfas` is always `false`: this endpoint is a display summary only and does not contact NSFAS or determine funding eligibility.
 
 ## Error handling
 

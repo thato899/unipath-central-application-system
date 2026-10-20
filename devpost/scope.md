@@ -23,18 +23,19 @@ No visual references or aesthetic direction established yet. Accessibility is a 
 The learner wants to build an agentic project from requirements they define, with the agent implementing the agreed plan. Personal motivation for this particular application problem is not established.
 
 ## What "Working" Looks Like
-A student can enter a profile and seven matric subject marks, browse undergraduate programmes across all nine UP faculties, see illustrative eligibility matches and upgrading paths, submit to listed institutions, track sample statuses, receive an offer, and accept or reject it. The experience is designed to be usable with assistive technology and without relying on sound.
+A student can enter a profile and seven matric subject marks, browse undergraduate programmes across all nine UP faculties, see illustrative eligibility matches and upgrading paths, submit to listed institutions, track sample statuses, receive offers, and accept or reject them. After accepting one offer, they can record a residence preference tied to that university and view a demo funding destination summary. The experience is designed to be usable with assistive technology and without relying on sound.
 
 ## The POC Boundary
 - Student-facing flow only, using an illustrative University of Pretoria catalogue and a secondary demo institution.
 - One reusable student profile with exactly seven matric subject marks, including Life Orientation, plus separately entered APS.
 - Undergraduate programme entries based on the UP 2026 Yearbook lists, grouped by all nine faculties, with illustrative requirement checks and an upgrading-marks application path.
 - Application status tracking and a sample offer that can be accepted or rejected.
+- Residence preference request unlocked after accepting an offer, with a demo funding-destination summary based on the accepted institution and residence preference.
 - Accessibility built into the prototype and working app from the start.
 - A Figma prototype reviewed before implementation; Python included in the code implementation.
 
 ## Later
-Residence applications after acceptance, NSFAS funding allocation based on acceptance and residence, institution-side course/requirement management, and integrations with university systems through APIs. Keep the design expandable to other countries.
+Live residence submission, NSFAS funding allocation based on acceptance and residence, institution-side course/requirement management, and integrations with university systems through APIs. The local demo records a residence preference and derives a funding-destination summary, but sends neither to an institution nor NSFAS. Keep the design expandable to other countries.
 
 ## Explicitly Cut
 - Live connections to university systems or NSFAS: unavailable for a small proof of concept and not needed to demonstrate the student journey.

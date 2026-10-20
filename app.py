@@ -194,6 +194,7 @@ for course_id, name, short_name, faculty, description, careers, aps, math in PRO
     COURSES.append(COURSE)
 
 APPLICATIONS: list[dict] = []
+RESIDENCE_APPLICATIONS: list[dict] = []
 
 def json_bytes(value: object) -> bytes:
     return json.dumps(value, ensure_ascii=False).encode("utf-8")
@@ -264,6 +265,21 @@ class DemoHandler(BaseHTTPRequestHandler):
             return self._json(200, {"course_id": course["id"], "matches": results, "marks_used": marks, "sample_data": True})
         if path == "/api/applications":
             return self._json(200, {"applications": APPLICATIONS, "sample_data": True})
+        if path == "/api/residence":
+            return self._json(200, {"residence_applications": RESIDENCE_APPLICATIONS, "sample_data": True})
+        if path == "/api/funding-plan":
+            accepted = next((app for app in APPLICATIONS if app["status"] == "accepted"), None)
+            if not accepted:
+                return self._json(200, {"status": "no_accepted_offer", "sample_data": True, "sent_to_nsfas": False})
+            residence = next((item for item in RESIDENCE_APPLICATIONS if item["application_id"] == accepted["id"]), None)
+            return self._json(200, {
+                "status": "summary_ready_demo" if residence else "waiting_for_residence",
+                "university_name": accepted["university_name"], "course_name": accepted["course_name"],
+                "application_id": accepted["id"],
+                "residence_status": residence["status"] if residence else "not_submitted",
+                "residence_preference": residence["preference"] if residence else None,
+                "sample_data": True, "sent_to_nsfas": False,
+            })
         return self._serve_static(path)
 
     def do_POST(self) -> None:
@@ -279,10 +295,24 @@ class DemoHandler(BaseHTTPRequestHandler):
             ids = body.get("university_ids", [])
             if not isinstance(ids, list) or not ids:
                 return self._json(400, {"error": "Select at least one university."})
-            if not isinstance(marks.get("subjects"), dict) or len(marks["subjects"]) != 7 or "Life Orientation" not in marks["subjects"]:
-                return self._json(400, {"error": "A matric record must include seven subjects including Life Orientation."})
+            subjects = marks.get("subjects")
+            if not isinstance(subjects, dict) or len(subjects) != 7 or "Life Orientation" not in subjects or len({str(name).strip().casefold() for name in subjects}) != 7:
+                return self._json(400, {"error": "A matric record must include seven unique subjects including Life Orientation."})
+            try:
+                aps, mathematics, english = (int(marks.get(key, -1)) for key in ("aps", "mathematics", "english"))
+                subject_marks = [int(value) for value in subjects.values()]
+            except (TypeError, ValueError):
+                return self._json(400, {"error": "APS and all subject marks must be numbers."})
+            if not 0 <= aps <= 50 or any(not 0 <= value <= 100 for value in [mathematics, english, *subject_marks]):
+                return self._json(400, {"error": "APS must be 0–50 and each subject mark must be 0–100."})
+            marks["aps"], marks["mathematics"], marks["english"] = aps, mathematics, english
+            student_name = str(body.get("student_name", "")).strip()
+            if not student_name or len(student_name) > 80:
+                return self._json(400, {"error": "Enter a student name of 1–80 characters."})
+            if len(ids) != len(set(map(str, ids))):
+                return self._json(400, {"error": "Choose each university at most once."})
             allowed = {m["university_id"]: m for m in course["matches"]}
-            created = []
+            destinations = []
             for uid in ids:
                 req, uni = allowed.get(str(uid)), university_for(str(uid))
                 if not req or not uni:
@@ -290,15 +320,44 @@ class DemoHandler(BaseHTTPRequestHandler):
                 status = match_status(req, marks, bool(body.get("upgrading", False)))
                 if status == "does_not_match":
                     return self._json(400, {"error": "This selection is outside the match or upgrading path."})
-                app = {"id": str(uuid.uuid4())[:8], "course_id": course["id"], "course_name": course["short_name"], "university_id": uni["id"], "university_name": uni["name"], "student_name": str(body.get("student_name", "Student"))[:80], "status": "offer_received" if not APPLICATIONS else "in_review", "decision": None, "demo_response": True, "sample_data": True}
+                if any(a["course_id"] == course["id"] and a["university_id"] == uni["id"] for a in APPLICATIONS):
+                    return self._json(409, {"error": "An application for this course and university already exists in this demo."})
+                destinations.append(uni)
+            created = []
+            for uni in destinations:
+                app = {"id": str(uuid.uuid4())[:8], "course_id": course["id"], "course_name": course["short_name"], "university_id": uni["id"], "university_name": uni["name"], "student_name": student_name, "status": "offer_received", "decision": None, "demo_response": True, "sample_data": True}
                 APPLICATIONS.append(app); created.append(app)
             return self._json(201, {"applications": created, "sample_data": True})
+        if path.startswith("/api/applications/") and path.endswith("/residence"):
+            app_id = path.removeprefix("/api/applications/").removesuffix("/residence").strip("/")
+            app = next((a for a in APPLICATIONS if a["id"] == app_id), None)
+            if not app or app["status"] != "accepted":
+                return self._json(409, {"error": "Residence applications are available only after accepting an offer."})
+            if any(item["application_id"] == app_id for item in RESIDENCE_APPLICATIONS):
+                return self._json(409, {"error": "A residence request has already been recorded for this accepted offer."})
+            preference = body.get("preference")
+            if preference not in {"On-campus residence", "Off-campus accommodation support", "Either option"}:
+                return self._json(400, {"error": "Choose a residence preference."})
+            accommodation_needs = str(body.get("accommodation_needs", "")).strip()
+            if len(accommodation_needs) > 500:
+                return self._json(400, {"error": "Accommodation notes must be 500 characters or fewer."})
+            residence = {
+                "id": str(uuid.uuid4())[:8], "application_id": app["id"],
+                "university_id": app["university_id"], "university_name": app["university_name"],
+                "course_name": app["course_name"], "preference": preference,
+                "accommodation_needs": accommodation_needs, "status": "request_recorded_demo",
+                "sample_data": True,
+            }
+            RESIDENCE_APPLICATIONS.append(residence)
+            return self._json(201, {"residence_application": residence, "sample_data": True})
         if path.startswith("/api/applications/") and path.endswith("/decision"):
             app_id = path.removeprefix("/api/applications/").removesuffix("/decision").strip("/")
             decision = body.get("decision")
             app = next((a for a in APPLICATIONS if a["id"] == app_id), None)
             if decision not in {"accepted", "rejected"} or not app or app["status"] != "offer_received":
                 return self._json(400, {"error": "Choose a valid decision for an available demo offer."})
+            if decision == "accepted" and any(other["status"] == "accepted" for other in APPLICATIONS):
+                return self._json(409, {"error": "Only one offer can be accepted in this single-student demo."})
             app["decision"], app["status"] = decision, decision
             return self._json(200, {"application": app, "sample_data": True})
         return self._json(404, {"error": "API endpoint not found."})

@@ -30,9 +30,9 @@ Open http://127.0.0.1:8000 in a browser. Stop the server with Ctrl+C.
 - The profile form requires seven subjects, including Life Orientation. APS is entered separately in this prototype; it is not calculated from marks.
 - The profile is saved in the current browser's local storage.
 - The marks statement input only selects a file name. This demo does not upload, read, or extract information from the file; marks are entered manually.
-- The first selected application receives a simulated offer so the accept/reject path can be demonstrated. Additional applications remain in review.
+- Each submitted destination receives a simulated offer so the student can compare responses and accept or reject them. Only one offer can be accepted at a time in the single-student demo.
 - Python serves a local JSON API for the course catalogue, eligibility matches, applications, and offer decisions. It does not connect to real university systems or NSFAS.
-- Residence, NSFAS routing, institution-side course management, real university APIs, authentication, and production data storage are future work.
+- Residence requests are recorded in the local demo only after an offer is accepted. The funding summary derives its university from that accepted offer and includes the residence preference; it does not contact NSFAS. Real NSFAS routing, institution-side course management, university APIs, authentication, and production data storage are future work.
 
 ## Local demo API
 

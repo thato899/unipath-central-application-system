@@ -14,7 +14,8 @@ Source: `scope.md > The Unique Kernel`, `scope.md > Who It's For`, and `scope.md
 2. They browse courses grouped by faculty. Every course explains its subject and gives example careers.
 3. They open a course to compare sample universities and course requirements. The app labels a match as meeting listed requirements or having an application path while the student is upgrading marks.
 4. They select matching universities, review the destinations and shared profile, then confirm submission.
-5. The application tracker shows sample university responses in one place. A sample offer can be accepted or rejected.
+5. The application tracker shows sample university responses in one place. Sample offers can be accepted or rejected.
+6. After accepting an offer, the student can record a residence preference for that university and view a funding-destination summary derived from the accepted offer and residence request.
 
 Source: `scope.md > The Core Loop` and `scope.md > What "Working" Looks Like`.
 
@@ -26,6 +27,7 @@ Source: `scope.md > The Core Loop` and `scope.md > What "Working" Looks Like`.
 - **Application review:** shared profile and chosen destinations shown before the student confirms.
 - **Application tracker:** a readable list of university decisions with text labels as well as colors.
 - **Offer response:** confirmation after accepting or rejecting an offer.
+- **Residence and funding summary:** residence request is available only for the accepted university; the demo funding summary shows the accepted institution and residence preference without sending data to NSFAS.
 
 ## Look and Feel
 
@@ -53,9 +55,11 @@ Accessibility controls are clearly named: read aloud, text size, and high contra
 ### Application review, status, and offer response
 
 - Before submission, the student sees the profile and marks that will be shared and each chosen university/course.
-- Submission creates sample application records. The local demo simulates an offer for the first application and leaves additional applications in review.
+- Submission creates a sample application and simulated offer for every selected destination.
 - The tracker shows textual status for every sample application.
 - The student can accept or reject a simulated offer. The response is reflected in the tracker.
+- The student can accept at most one offer in the demo. Accepting another requires declining the first.
+- After acceptance, the student can record one residence preference for that university. The funding summary derives its destination from the accepted application and shows whether residence was requested.
 
 ### Accessibility
 
@@ -95,11 +99,12 @@ A local, responsive student application flow with profile and marks entry, facul
 - A national production admissions system: the first version only demonstrates fictional sample data.
 - University administrator dashboards: the student journey is the only prototype surface.
 - Authentication and production persistence: the profile is local to the browser and applications are held in server memory.
-- Residence applications: shown as a future step after offer acceptance, but not active.
+- Live residence applications: the prototype records a local demo request only; it does not send it to a university residence office.
+- Real NSFAS allocation: the funding summary is not transmitted to NSFAS and does not determine funding eligibility.
 
 ## Possible Later Enhancements
 
-Add institution-side course and requirement management and partner API adapters. Add residence applications, NSFAS routing based on accepted offers and residence, and country-specific admissions rules.
+Connect residence requests to university systems through approved partner APIs. Add an authorized NSFAS integration that uses accepted institution and residence details with student consent, and add country-specific admissions rules.
 
 ## Non-Goals
 

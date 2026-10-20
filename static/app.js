@@ -8,6 +8,8 @@ const state = {
   matches: [],
   selectedUniversities: new Set(),
   applications: [],
+  residenceApplications: [],
+  activeResidenceApplicationId: null,
   selectedFaculty: "All faculties",
 };
 
@@ -256,6 +258,7 @@ function renderApplications() {
   $("#application-summary").classList.toggle("hidden", state.applications.length === 0);
   if (!state.applications.length) return;
   const offers = state.applications.filter((app) => app.status === "offer_received").length;
+  const acceptedOfferExists = state.applications.some((app) => app.status === "accepted");
   const heading = document.createElement("h2");
   heading.textContent = state.applications.length + " " + (state.applications.length === 1 ? "application" : "applications");
   const description = document.createElement("p");
@@ -277,11 +280,29 @@ function renderApplications() {
     note.textContent = application.demo_response ? "Sample response for this demo" : "Sample application";
     info.append(title, detail, note);
     article.append(status, info);
+    const residence = state.residenceApplications.find((item) => item.application_id === application.id);
+    if (application.status === "accepted") {
+      const actions = document.createElement("div");
+      actions.className = "offer-actions";
+      if (residence) {
+        const residenceStatus = document.createElement("p");
+        residenceStatus.className = "help";
+        residenceStatus.textContent = "Residence request recorded: " + residence.preference;
+        article.append(residenceStatus);
+        actions.append(makeButton("View funding destination", "secondary", loadFundingPlan));
+      } else {
+        actions.append(makeButton("Apply for residence", "primary", () => openResidence(application.id)));
+      }
+      article.append(actions);
+    }
     if (application.status === "offer_received") {
       const actions = document.createElement("div");
       actions.className = "offer-actions";
+      const acceptButton = makeButton("Accept offer", "primary", () => decideOffer(application.id, "accepted"));
+      acceptButton.disabled = acceptedOfferExists;
+      if (acceptedOfferExists) acceptButton.title = "Only one offer can be accepted in this single-student demo.";
       actions.append(
-        makeButton("Accept offer", "primary", () => decideOffer(application.id, "accepted")),
+        acceptButton,
         makeButton("Reject offer", "danger", () => decideOffer(application.id, "rejected")),
       );
       article.append(actions);
@@ -308,8 +329,69 @@ async function decideOffer(applicationId, decision) {
     ? "Your response is recorded in this local demo. No real institution has been contacted."
     : "Your response is recorded in this local demo. Your other applications remain in the tracker.";
   $("#residence-next-step").classList.toggle("hidden", !accepted);
+  if (accepted) {
+    $("#start-residence").onclick = () => openResidence(applicationId);
+    $("#view-funding-plan").onclick = loadFundingPlan;
+  }
   navigate("offer");
   announce(accepted ? "Offer accepted in the demo." : "Offer declined in the demo.");
+}
+
+async function openResidence(applicationId) {
+  const application = state.applications.find((item) => item.id === applicationId);
+  if (!application || application.status !== "accepted") return announce("Accept an offer before applying for residence.");
+  if (state.residenceApplications.some((item) => item.application_id === applicationId)) return loadFundingPlan();
+  state.activeResidenceApplicationId = applicationId;
+  $("#residence-university").textContent = "Requesting accommodation related to " + application.course_name + " at " + application.university_name + ".";
+  $("#residence-preference").value = "";
+  $("#accommodation-needs").value = "";
+  navigate("residence");
+}
+
+async function submitResidenceApplication(event) {
+  event.preventDefault();
+  if (!state.activeResidenceApplicationId || !event.currentTarget.reportValidity()) return;
+  const response = await fetch("/api/applications/" + state.activeResidenceApplicationId + "/residence", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ preference: $("#residence-preference").value, accommodation_needs: $("#accommodation-needs").value.trim() }),
+  });
+  const data = await response.json();
+  if (!response.ok) return announce(data.error || "The residence request could not be recorded.");
+  state.residenceApplications.push(data.residence_application);
+  renderApplications();
+  announce("Residence preference recorded for " + data.residence_application.university_name + ". No university has been contacted.");
+  await loadFundingPlan();
+}
+
+async function loadFundingPlan() {
+  const response = await fetch("/api/funding-plan");
+  const data = await response.json();
+  const panel = $("#funding-plan");
+  panel.replaceChildren();
+  const heading = document.createElement("h2");
+  const details = document.createElement("p");
+  const status = document.createElement("p");
+  if (data.status === "no_accepted_offer") {
+    heading.textContent = "No accepted offer yet";
+    details.textContent = "Accept one university offer to identify a funding destination.";
+    status.textContent = "No destination has been selected.";
+  } else {
+    heading.textContent = data.university_name;
+    details.textContent = "Accepted programme: " + data.course_name + ".";
+    status.textContent = data.residence_status === "not_submitted"
+      ? "Residence preference: not recorded yet. Submit a residence request to complete this demo summary."
+      : "Residence preference: " + data.residence_preference + " (request recorded in this demo).";
+  }
+  const notice = document.createElement("p");
+  notice.className = "help";
+  notice.textContent = data.sent_to_nsfas ? "Sent to NSFAS." : "Demo only: this destination summary is not sent to NSFAS.";
+  panel.append(heading, details, status, notice);
+  const residenceButton = $("#funding-apply-residence");
+  residenceButton.classList.toggle("hidden", data.status !== "waiting_for_residence");
+  if (data.status === "waiting_for_residence") {
+    residenceButton.onclick = () => openResidence(data.application_id);
+  }
+  navigate("funding");
 }
 
 async function submitApplications() {
@@ -330,9 +412,10 @@ async function submitApplications() {
 }
 
 async function loadApplications() {
-  const response = await fetch("/api/applications");
-  const data = await response.json();
+  const [applicationsResponse, residenceResponse] = await Promise.all([fetch("/api/applications"), fetch("/api/residence")]);
+  const [data, residenceData] = await Promise.all([applicationsResponse.json(), residenceResponse.json()]);
   state.applications = data.applications || [];
+  state.residenceApplications = residenceData.residence_applications || [];
   renderApplications();
 }
 
@@ -370,6 +453,7 @@ $("#profile-form").addEventListener("submit", (event) => {
   navigate("courses");
   announce("Profile saved in this browser. Choose a course to see sample university matches.");
 });
+$("#residence-form").addEventListener("submit", submitResidenceApplication);
 
 $("#matches-form").addEventListener("submit", (event) => {
   event.preventDefault();
